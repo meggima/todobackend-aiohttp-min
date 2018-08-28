@@ -1,15 +1,15 @@
 from aiohttp import web
 import aiohttp_cors
 
-TODOS = [
-    {'title': 'build an API', 'order': 1, 'completed': False},
-    {'title': '?????', 'order': 2, 'completed': False},
-    {'title': 'profit!', 'order': 3, 'completed': False}
-]
+TODOS = {
+    0: {'title': 'build an API', 'order': 1, 'completed': False},
+    1: {'title': '?????', 'order': 2, 'completed': False},
+    2: {'title': 'profit!', 'order': 3, 'completed': False}
+}
 
 def get_all_todos(request):
     return web.json_response([
-        {'id': idx, **todo} for idx, todo in enumerate(TODOS)
+        {'id': key, **todo} for key, todo in TODOS.items()
     ])
 
 def remove_all_todos(request):
@@ -19,7 +19,7 @@ def remove_all_todos(request):
 def get_one_todo(request):
     id = int(request.match_info['id'])
 
-    if id >= len(TODOS):
+    if id not in TODOS:
         return web.json_response({'error': 'Todo not found'}, status=404)
 
     return web.json_response({'id': id, **TODOS[id]})
@@ -27,17 +27,17 @@ def get_one_todo(request):
 async def create_todo(request):
     data = await request.json()
 
-    if not 'title' in data:
+    if 'title' not in data:
         return web.json_response({'error': '"title" is a required field'})
     title = data['title']
     if not isinstance(title, str) or not len(title):
         return web.json_response({'error': '"title" must be a string with at least one character'})
 
     data['completed'] = bool(data.get('completed', False))
-    new_id = len(TODOS)
+    new_id = max(TODOS.keys(), default=0) + 1
     data['url'] = str(request.url.join(request.app.router['one_todo'].url_for(id=new_id)))
 
-    TODOS.append(data)
+    TODOS[new_id] = data
 
     return web.Response(
         headers={'Location': data['url']},
@@ -47,7 +47,7 @@ async def create_todo(request):
 async def update_todo(request):
     id = int(request.match_info['id'])
 
-    if id >= len(TODOS):
+    if id not in TODOS:
         return web.json_response({'error': 'Todo not found'}, status=404)
 
     data = await request.json()
@@ -58,7 +58,7 @@ async def update_todo(request):
 def remove_todo(request):
     id = int(request.match_info['id'])
 
-    if id >= len(TODOS):
+    if id not in TODOS:
         return web.json_response({'error': 'Todo not found'})
 
     del TODOS[id]
