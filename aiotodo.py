@@ -35,7 +35,7 @@ async def create_todo(request):
 
     data['completed'] = bool(data.get('completed', False))
     new_id = max(TODOS.keys(), default=0) + 1
-    data['url'] = str(request.url.join(request.app.router['one_todo'].url_for(id=new_id)))
+    data['url'] = str(request.url.join(request.app.router['one_todo'].url_for(id=str(new_id))))
 
     TODOS[new_id] = data
 
@@ -77,10 +77,12 @@ def app_factory(args=()):
             )
     })
 
-    cors.add(app.router.add_get('/todos/', get_all_todos, name='all_todos'))
-    cors.add(app.router.add_delete('/todos/', remove_all_todos, name='remove_todos'))
-    cors.add(app.router.add_post('/todos/', create_todo, name='create_todo'))
-    cors.add(app.router.add_get('/todos/{id:\d+}', get_one_todo, name='one_todo'))
-    cors.add(app.router.add_patch('/todos/{id:\d+}', update_todo, name='update_todo'))
-    cors.add(app.router.add_delete('/todos/{id:\d+}', remove_todo, name='remove_todo'))
+    todos_resource = cors.add(app.router.add_resource("/todos/"))
+    cors.add(todos_resource.add_route("GET", get_all_todos))
+    cors.add(todos_resource.add_route("DELETE", remove_all_todos))
+    cors.add(todos_resource.add_route("POST", create_todo))
+    todo_resource = cors.add(app.router.add_resource("/todos/{id:\d+}", name='one_todo'))
+    cors.add(todo_resource.add_route("GET", get_one_todo))
+    cors.add(todo_resource.add_route("PATCH", update_todo))
+    cors.add(todo_resource.add_route("DELETE", remove_todo))
     return app
