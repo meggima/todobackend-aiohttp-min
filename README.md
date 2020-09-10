@@ -5,7 +5,7 @@ Yet another [todo backend](http://todobackend.com) written in Python 3.5 with ai
 ## Usage
 
 ```
-python3 -m aiohttp.web -P 8080 aiotodo:app_factory
+python3 aiotodo.py
 ```
 
 ## Tests

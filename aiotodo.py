@@ -1,3 +1,4 @@
+import logging
 from aiohttp import web
 import aiohttp_cors
 
@@ -65,24 +66,24 @@ def remove_todo(request):
 
     return web.Response(status=204)
 
-def app_factory(args=()):
-    app = web.Application()
+app = web.Application()
 
-    # Configure default CORS settings.
-    cors = aiohttp_cors.setup(app, defaults={
-        "*": aiohttp_cors.ResourceOptions(
-                allow_credentials=True,
-                expose_headers="*",
-                allow_headers="*",
-            )
-    })
+# Configure default CORS settings.
+cors = aiohttp_cors.setup(app, defaults={
+    "*": aiohttp_cors.ResourceOptions(
+            allow_credentials=True,
+            expose_headers="*",
+            allow_headers="*",
+            allow_methods="*",
+        )
+})
 
-    todos_resource = cors.add(app.router.add_resource("/todos/"))
-    cors.add(todos_resource.add_route("GET", get_all_todos))
-    cors.add(todos_resource.add_route("DELETE", remove_all_todos))
-    cors.add(todos_resource.add_route("POST", create_todo))
-    todo_resource = cors.add(app.router.add_resource("/todos/{id:\d+}", name='one_todo'))
-    cors.add(todo_resource.add_route("GET", get_one_todo))
-    cors.add(todo_resource.add_route("PATCH", update_todo))
-    cors.add(todo_resource.add_route("DELETE", remove_todo))
-    return app
+cors.add(app.router.add_get('/todos/', get_all_todos, name='all_todos'))
+cors.add(app.router.add_delete('/todos/', remove_all_todos, name='remove_todos'))
+cors.add(app.router.add_post('/todos/', create_todo, name='create_todo'))
+cors.add(app.router.add_get('/todos/{id:\d+}', get_one_todo, name='one_todo'))
+cors.add(app.router.add_patch('/todos/{id:\d+}', update_todo, name='update_todo'))
+cors.add(app.router.add_delete('/todos/{id:\d+}', remove_todo, name='remove_todo'))
+
+logging.basicConfig(level=logging.DEBUG)
+web.run_app(app, port=8080)
