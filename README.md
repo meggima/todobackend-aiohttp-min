@@ -8,6 +8,7 @@ The application uses an Sqlite database. The DB can be initialized using the scr
 
 ```
 sqlite3 tasks.db -init init.sql
+pip3 install -r requirements.txt
 python3 aiotodo.py
 ```
 
