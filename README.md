@@ -4,7 +4,10 @@ Yet another [todo backend](http://todobackend.com) written in Python 3.5 with ai
 
 ## Usage
 
+The application uses an Sqlite database. The DB can be initialized using the script `init.sql`.
+
 ```
+sqlite3 tasks.db -init init.sql
 python3 aiotodo.py
 ```
 
