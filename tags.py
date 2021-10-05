@@ -8,6 +8,7 @@ class TagsHandler:
         self.sessionMaker = sessionMaker
         self.converter = converter
 
+
     def get_all_tags(self, request):
         with self.sessionMaker() as session:
             allTags = session.query(Tag).all()
@@ -16,11 +17,13 @@ class TagsHandler:
                 self.converter.mapTag(tag, request) for tag in allTags
             ])
 
+
     def remove_all_tags(self, request):
         with self.sessionMaker() as session:
             session.query(Tag).delete()
             session.commit()
             return web.Response(status=204)
+
 
     def get_one_tag(self, request):
         id = int(request.match_info['id'])
@@ -50,6 +53,7 @@ class TagsHandler:
                 status=303
             )
 
+
     async def update_tag(self, request):
         id = int(request.match_info['id'])
 
@@ -68,6 +72,7 @@ class TagsHandler:
 
             return web.json_response(self.converter.mapTag(tag, request))
 
+
     async def remove_tag(self, request):
         id = int(request.match_info['id'])
 
@@ -81,6 +86,7 @@ class TagsHandler:
             session.commit()
 
             return web.Response(status=204)
+
 
     async def get_one_tag_todos(self, request):
         id = int(request.match_info['id'])

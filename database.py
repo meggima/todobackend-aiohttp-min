@@ -4,6 +4,7 @@ from sqlalchemy.orm import relationship
 
 Base = declarative_base()
 
+
 task_tags = Table(
     "task_tags",
     Base.metadata,
@@ -11,16 +12,6 @@ task_tags = Table(
     Column("tag_id", Integer, ForeignKey('tags.tag_id'), primary_key=True)
 )
 
-class Tag(Base):
-    __tablename__ = "tags"
-    tag_id = Column('tag_id', Integer, primary_key=True)
-    title = Column('title', String)
-    tasks = relationship(
-        "Task", secondary=task_tags, back_populates="tags"
-    )
-
-    def __init__(self, title = ''):
-        self.title = title
 
 class Task(Base):
     __tablename__= "tasks"
@@ -36,3 +27,15 @@ class Task(Base):
         self.title = title
         self.completed = completed
         self.order = order
+
+
+class Tag(Base):
+    __tablename__ = "tags"
+    tag_id = Column('tag_id', Integer, primary_key=True)
+    title = Column('title', String)
+    tasks = relationship(
+        "Task", secondary=task_tags, back_populates="tags"
+    )
+
+    def __init__(self, title = ''):
+        self.title = title

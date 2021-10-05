@@ -9,6 +9,7 @@ class TasksHandler:
         self.sessionMaker = sessionMaker
         self.converter = converter
 
+
     def get_all_todos(self, request):
         with self.sessionMaker() as session:
             allTasks = session.query(Task).all()
@@ -17,12 +18,14 @@ class TasksHandler:
                 self.converter.mapTask(task, request) for task in allTasks
             ])
 
+
     def remove_all_todos(self, request):
         with self.sessionMaker() as session:
             session.query(Task).delete()
             session.commit()
 
             return web.Response(status=204)
+
 
     def get_one_todo(self, request):
         id = int(request.match_info['id'])
@@ -34,6 +37,7 @@ class TasksHandler:
                 return web.json_response({'error': 'Todo not found'}, status=404)
 
             return web.json_response(self.converter.mapTask(task, request))
+
 
     async def create_todo(self, request):
         data = await request.json()
@@ -50,6 +54,7 @@ class TasksHandler:
                 headers={'Location': self.converter.mapTask(newTask, request)['url']},
                 status=303
             )
+
 
     async def update_todo(self, request):
         id = int(request.match_info['id'])
@@ -69,6 +74,7 @@ class TasksHandler:
 
             return web.json_response(self.converter.mapTask(task, request))
 
+
     def remove_todo(self, request):
         id = int(request.match_info['id'])
 
@@ -83,6 +89,7 @@ class TasksHandler:
 
             return web.Response(status=204)
 
+
     async def get_one_todo_alltags(self, request):
         id = int(request.match_info['id'])
 
@@ -95,6 +102,7 @@ class TasksHandler:
             return web.json_response([
                 self.converter.mapTag(tag, request) for tag in task.tags
             ])
+
 
     async def add_one_todo_tag(self, request):
         id = int(request.match_info['id'])
@@ -120,7 +128,8 @@ class TasksHandler:
             session.add(task)
             session.commit()
 
-            return web.json_response({'error': 'Tag not found'})
+            return web.json_response(self.converter.mapTask(task, request))
+
 
     async def remove_one_todo_tag(self, request):
         id = int(request.match_info['id'])
@@ -147,6 +156,7 @@ class TasksHandler:
             session.commit()
 
             return web.Response(status=204)
+
 
     async def remove_one_todo_alltags(self, request):
         id = int(request.match_info['id'])
